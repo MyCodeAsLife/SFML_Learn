@@ -1,29 +1,34 @@
+
 #include "Header.h"
+#include "Map.h"
 #include "Player.h"
+#include "View.h"
 
 
 
-const unsigned c_wWidth(900);		//Ширина окна
-const unsigned c_wHeight(600);		//Высота окна
-const unsigned c_wFPS(120);			
-const unsigned c_Speed(600);		//Скорость игры (Чем меньше число, тем выше скорость)
+const unsigned c_wWidth(640);		// Ширина окна
+const unsigned c_wHeight(480);		// Высота окна
+const unsigned c_wFPS(120);			// Отрисовка кадров в секунду (FPS)
+const unsigned c_Speed(600);		// Скорость игры (Чем меньше число, тем выше скорость)
 
 int main()
 {
 	RenderWindow window(VideoMode(c_wWidth, c_wHeight), "SFML-Learn");
 	window.setFramerateLimit(c_wFPS);
+	// Инициализация камеры (Подгон масштаба камеры под размеры окна)
+	camera.reset(FloatRect(0, 0, c_wWidth, c_wHeight));
 
-	Texture texture;
-	texture.loadFromFile("images/hero.png");
-	Sprite sprite;
-	sprite.setTexture(texture);
-	sprite.setTextureRect(IntRect(0, 192, 96, 96));
-	sprite.setPosition(30.f, 40.f);
+	// Текстуры карты
+	Texture textute_map;
+	textute_map.loadFromFile("images/map.png");
+	Sprite sprite_map;
+	sprite_map.setTexture(textute_map);
 
 	float currentFrame(0);		//Текущий кадр
 	Clock clock;
 
-	Player p1("hero.png", 0, 96, 96, 96);
+	Player p1("hero.png", 96, 96, 96, 96);	// Создание и первоначальное размещение персонажа
+	moveCamera(p1.getX(), p1.getY());		// Установка начальной позиции камеры на управляемом персонаже
 
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
@@ -40,45 +45,73 @@ int main()
 			if (event.type == Event::Closed)
 				window.close();
 		}
-		if (Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up))
+
+		// Управление персонажем
+		if (Keyboard::isKeyPressed(Keyboard::Up))
 		{
-			p1.moveUp(3, 0.1f, time);
-			//p1.m_dir = 3;
-			//p1.m_speed = 0.1f;
-			//currentFrame += 0.005f * time;
-			//if (currentFrame > 3) currentFrame -= 3;
-			//p1.m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 288, 96, 96));
+			p1.moveUp(0.1f, time);
+			moveCamera(p1.getX(), p1.getY());
+			p1.interactionWithMap();
 		}
-		if (Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::Down))
+		if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
-			p1.m_dir = 2;
-			p1.m_speed = 0.1f;
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			p1.m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 0, 96, 96));
+			p1.moveDown(0.1f, time);
+			moveCamera(p1.getX(), p1.getY());
+			p1.interactionWithMap();
 		}
-		if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::Left))
+		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
-			p1.m_dir = 1;
-			p1.m_speed = 0.1f;
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			p1.m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 96, 96, 96));
+			p1.moveLeft(0.1f, time);
+			moveCamera(p1.getX(), p1.getY());
+			p1.interactionWithMap();
 		}
-		if (Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right))
+		if (Keyboard::isKeyPressed(Keyboard::Right))
 		{
-			p1.m_dir = 0;
-			p1.m_speed = 0.1f;
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			p1.m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 192, 96, 96));
+			p1.moveRight(0.1f, time);
+			moveCamera(p1.getX(), p1.getY());
+			p1.interactionWithMap();
 		}
+
+		// Перемещение карты
+		if (Keyboard::isKeyPressed(Keyboard::W))
+			camera.move(0.f, -0.1f * time);
+		if(Keyboard::isKeyPressed(Keyboard::S))
+			camera.move(0.f, 0.1f * time);
+		if(Keyboard::isKeyPressed(Keyboard::A))
+			camera.move(-0.1f * time, 0);
+		if (Keyboard::isKeyPressed(Keyboard::D))
+			camera.move(0.1f * time, 0);
+
+		// Свойства камеры
+		//changeCamera();
 
 		// Установка цвета фона
 		window.clear(Color(70, 70, 70, 0));
+
+		// Отрисовка карты (load map)
+		for (int i(0); i < c_HEIGHT_MAP; ++i)
+			for (int j(0); j < c_WIDTH_MAP; ++j)
+			{
+				// Выбор текстуры тайла в соответствии с "картой"
+				if (TileMap[i][j] == ' ')
+					sprite_map.setTextureRect(IntRect(0, 0, 32, 32));
+				if (TileMap[i][j] == 's')
+					sprite_map.setTextureRect(IntRect(32, 0, 32, 32));
+				if (TileMap[i][j] == '0')
+					sprite_map.setTextureRect(IntRect(64, 0, 32, 32));
+
+				sprite_map.setPosition(static_cast<float>(j * 32), static_cast<float>(i * 32));		// Выбор позиции тайла карты
+				window.draw(sprite_map);					// Отрисовка тайла карты
+			}
 		
+		// Отрисовка льва
 		p1.update(time);
 		window.draw(p1.m_sprite);
+
+		// Установка камеры
+		window.setView(camera);
+		
+		
 
 		// Отрисовка окна
 		window.display();

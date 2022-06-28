@@ -1,8 +1,11 @@
 #include "Player.h"
 
+
 Player::Player(String fileName, float x, float y, float width, float height) :
 	m_fileName(fileName), m_x(x), m_y(y), m_width(width), m_height(height)
 {
+	m_dx = 0;
+	m_dy = 0;
 	m_image.loadFromFile("images/" + m_fileName);
 	m_image.createMaskFromColor(Color(41, 33, 59));		//Удаляем тень под львом
 	m_texture.loadFromImage(m_image);
@@ -40,44 +43,61 @@ void Player::update(float time)
 	m_sprite.setPosition(m_x, m_y);	//Устанавливаем позицию спрайта
 }
 
-void Player::moveUp(int dir, float speed, float time)
+void Player::moveUp(float speed, float time)
 {
-	m_dir = dir;
+	m_dir = 3;
 	m_speed = speed;
-	//static int currentFrame(0);
-	m_currentFrame += 0.08f * time;
-	if (m_currentFrame > 3)
-		m_currentFrame -= 3;
-	std::cout << m_currentFrame << '\n';
-	m_sprite.setTextureRect(IntRect(96 * static_cast<int>(m_currentFrame), 288, 96, 96));
+	static float currentFrame(0);		//У каждого метода свой дабы не суммировались при нажатии нескольких клавиш
+	currentFrame += 0.005f * time;
+	if (currentFrame > 3)
+		currentFrame -= 3;
+	m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 288, 96, 96));
 }
 
-void Player::moveDown(int dir, float speed, float time)
+void Player::moveDown(float speed, float time)
 {
-	m_dir = dir;
+	m_dir = 2;
 	m_speed = speed;
-	static int currentFrame(0);
+	static float currentFrame(0);
 	currentFrame += 0.005f * time;
 	if (currentFrame > 3) currentFrame -= 3;
 	m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 0, 96, 96));
 }
 
-void Player::moveLeft(int dir, float speed, float time)
+void Player::moveLeft(float speed, float time)
 {
-	m_dir = dir;
+	m_dir = 1;
 	m_speed = speed;
-	int currentFrame(0);
+	static float currentFrame(0);
 	currentFrame += 0.005f * time;
 	if (currentFrame > 3) currentFrame -= 3;
 	m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 96, 96, 96));
 }
 
-void Player::moveRight(int dir, float speed, float time)
+void Player::moveRight(float speed, float time)
 {
-	m_dir = dir;
+	m_dir = 0;
 	m_speed = speed;
-	int currentFrame(0);
+	static float currentFrame(0);
 	currentFrame += 0.005f * time;
 	if (currentFrame > 3) currentFrame -= 3;
 	m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame), 192, 96, 96));
+}
+
+void Player::interactionWithMap()
+{
+	int tile_x(m_x / 32);
+	int tile_y(m_y / 32);
+	if (m_dx > 0)
+		if (TileMap[tile_x][tile_y] == '0')
+			m_x = tile_x * 32 - m_height;
+	if (m_dx < 0)
+		if (TileMap[tile_x][tile_y] == '0')
+			m_x = tile_x * 32 + m_height;
+	if (m_dy > 0)
+		if (TileMap[tile_x][tile_y] == '0')
+			m_y = tile_y * 32 - m_width;
+	if (m_dy > 0)
+		if (TileMap[tile_x][tile_y] == '0')
+			m_y = tile_y * 32 + m_width;
 }
