@@ -6,8 +6,8 @@
 
 
 
-const unsigned c_wWidth(640);		// Ширина окна
-const unsigned c_wHeight(480);		// Высота окна
+const unsigned c_wWidth(640);		// Ширина окна (640)
+const unsigned c_wHeight(480);		// Высота окна (480)
 const unsigned c_wFPS(120);			// Отрисовка кадров в секунду (FPS)
 const unsigned c_Speed(600);		// Скорость игры (Чем меньше число, тем выше скорость)
 
@@ -17,6 +17,8 @@ int main()
 	window.setFramerateLimit(c_wFPS);
 	// Инициализация камеры (Подгон масштаба камеры под размеры окна)
 	camera.reset(FloatRect(0, 0, c_wWidth, c_wHeight));
+	//camera.zoom(0.7f);	// Потом какнить удалить
+	
 
 	// Текстуры карты
 	Texture textute_map;
@@ -51,25 +53,21 @@ int main()
 		{
 			p1.moveUp(0.1f, time);
 			moveCamera(p1.getX(), p1.getY());
-			p1.interactionWithMap();
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Down))
 		{
 			p1.moveDown(0.1f, time);
 			moveCamera(p1.getX(), p1.getY());
-			p1.interactionWithMap();
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Left))
 		{
 			p1.moveLeft(0.1f, time);
 			moveCamera(p1.getX(), p1.getY());
-			p1.interactionWithMap();
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Right))
 		{
 			p1.moveRight(0.1f, time);
 			moveCamera(p1.getX(), p1.getY());
-			p1.interactionWithMap();
 		}
 
 		// Перемещение карты
