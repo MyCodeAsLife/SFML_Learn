@@ -2,10 +2,9 @@
 
 
 Player::Player(String fileName, float x, float y, float width, float height) :
-	m_fileName(fileName), m_x(x), m_y(y), m_width(width), m_height(height)
+	m_fileName(fileName), m_x(x), m_y(y), m_width(width), m_height(height),
+	m_dx(0), m_dy(0), m_score(0), m_health(100), m_life(true)
 {
-	m_dx = 0;
-	m_dy = 0;
 	m_image.loadFromFile("images/" + m_fileName);
 	m_image.createMaskFromColor(Color(41, 33, 59));		//Удаляем тень под львом
 	m_texture.loadFromImage(m_image);
@@ -42,6 +41,12 @@ void Player::update(float time)
 	m_speed = 0;					//Зануляем скорость, чтоб персонаж останавливался если не нажаты клавиши движения
 	m_sprite.setPosition(m_x, m_y);	//Устанавливаем позицию спрайта
 	interactionWithMap();
+
+	if (m_health <= 0)
+	{
+		m_health = 0;
+		m_life = false;
+	}
 }
 
 void Player::moveUp(float speed, float time)
@@ -106,13 +111,31 @@ void Player::interactionWithMap()
 				}
 				if (m_dx < 0)
 				{
-					m_x = j * 32 + 32;//аналогично идем влево
+					m_x = j * 32 + 32;	//аналогично идем влево
 				}
 			}
 
-			if (TileMap[i][j] == 's') { //если символ равен 's' (камень)
-				m_x = 300; m_y = 300;//какое то действие... например телепортация героя
-				TileMap[i][j] = ' ';//убираем камень, типа взяли бонус. можем и не убирать, кстати.
-			}
+			//if (TileMap[i][j] == 's')	//если символ равен 's' (камень)
+			//{ 
+			//	++m_score;
+			//	//m_x = 300; m_y = 300;//какое то действие... например телепортация героя
+			//	TileMap[i][j] = ' ';//убираем камень, типа взяли бонус. можем и не убирать, кстати.
+			//}
+			if (TileMap[i][j] != ' ')
+				switch (TileMap[i][j])
+				{
+				case 's':
+					++m_score;
+					TileMap[i][j] = ' ';
+					break;
+				case 'f':
+					m_health -= 40;
+					TileMap[i][j] = ' ';
+					break;
+				case 'h':
+					m_health += 20;
+					TileMap[i][j] = ' ';
+					break;
+				}
 		}
 }

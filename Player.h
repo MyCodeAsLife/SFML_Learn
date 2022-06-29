@@ -7,17 +7,20 @@ extern sf::String TileMap[];		// Объявляем что бы не словить ошибку многократног
 class Player
 {
 protected:
-	float m_x, m_y;				//Координаты игрока
+	float m_x, m_y;				// Координаты игрока
 
 public:
-	float m_width, m_height;	//Высота и ширина
-	float m_dx, m_dy;			//Ускорение по х и по у
-	float m_speed = 0;			//Скорость
-	int m_dir = 0;				//Направление
-	String m_fileName;			//Имя файла и его расширение
-	Image m_image;				//Изображение
-	Texture m_texture;			//Текстура
-	Sprite m_sprite;			//Спрайт
+	float m_width, m_height;	// Высота и ширина
+	float m_dx, m_dy;			// Ускорение по х и по у
+	float m_speed = 0;			// Скорость
+	int m_dir = 0;				// Направление
+	int m_score = 0;			// Собранно камней
+	int m_health;				// Жизни
+	bool m_life;				// Состояние "жив\мертв"
+	String m_fileName;			// Имя файла и его расширение
+	Image m_image;				// Изображение
+	Texture m_texture;			// Текстура
+	Sprite m_sprite;			// Спрайт
 
 public:
 	Player(String fileName, float x, float y, float width, float height);
