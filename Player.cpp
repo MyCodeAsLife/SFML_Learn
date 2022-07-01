@@ -1,20 +1,22 @@
 #include "Player.h"
 
-Player::Player(String F, float X, float Y, float W, float H)
+Player::Player(Image& image, float X, float Y, int W, int H, const String& name) : Entity(image, X, Y, W, H, name)
 {
 
-	m_speed = 0; m_score = 0; m_health = 100; m_dx = 0; m_dy = 0;
-	m_life = true; m_isMove = false; m_isSelect = false; m_onGround = false;
-	m_file = F;
-	m_width = W; m_height = H;
-	m_image.loadFromFile("images/" + m_file);
-	m_image.createMaskFromColor(Color(41, 33, 59));
-	m_texture.loadFromImage(m_image);
-	m_sprite.setTexture(m_texture);
-
-	m_x = X; m_y = Y;
-	m_sprite.setTextureRect(IntRect(0, 134, m_width, m_height));
-	m_sprite.setOrigin(m_width / 2, m_height / 2);
+	//m_speed = 0; m_health = 100; m_dx = 0; m_dy = 0;
+	//m_life = true; m_isMove = false; m_isSelect = false; m_onGround = false;
+	//m_file = F;
+	//m_width = W; m_height = H;
+	//m_image.loadFromFile("images/" + m_file);
+	//m_image.createMaskFromColor(Color(41, 33, 59));
+	//m_texture.loadFromImage(m_image);
+	//m_sprite.setTexture(m_texture);
+	//m_x = X; m_y = Y;
+	m_score = 0;
+	m_state = stay;
+	if (name == "Player1")
+	m_sprite.setTextureRect(IntRect(4, 19, m_width, m_height));
+	//m_sprite.setOrigin(m_width / 2, m_height / 2);
 }
 
 void Player::control(const float time)
@@ -117,4 +119,14 @@ void Player::checkCollisionWithMap(float Dx, float Dy)
 					m_x = j * 32 + 32;
 			}
 		}
+}
+
+Entity::Entity(Image& image, float X, float Y, int width, int height, const String& name) :
+	m_width(width), m_height(height), m_dx(0), m_dy(0), m_x(X), m_y(Y), m_speed(0), m_name(name),
+	m_moveTimer(0), m_health(100), m_life(true), m_isMove(false), m_onGround(false)
+{
+	m_texture.loadFromImage(image);
+	m_sprite.setTexture(m_texture);
+	//Перемещаем точку отсчета координат спрайта, из левого верхнего угла в середину 
+	m_sprite.setOrigin(m_width / 2, m_height / 2);	
 }

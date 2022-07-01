@@ -3,7 +3,6 @@
 #include "Map.h"
 #include "Player.h"
 #include "View.h"
-#include "Mission.h"
 
 
 
@@ -21,73 +20,69 @@ int main()
 	// Инициализация камеры (Подгон масштаба камеры под размеры окна)
 	camera.reset(FloatRect(0, 0, c_wWidth, c_wHeight));
 
-	// Шрифт
-	Font font;
-	font.loadFromFile("images/CyrilicOld.TTF");
-	// Текст счетчик камней
-	Text text_score("", font, 20);				// Надписть, шрифт, размер шрифта
-	//text_score.setFillColor(Color::Red);		// Цвет текста
-	text_score.setOutlineColor(Color::Black);	// Цвет контура текста
-	text_score.setStyle(Text::Bold);			// Жирный текст
-	// Текст индикатор здоровья
-	Text text_health("", font, 30);
-	text_health.setFillColor(Color::Green);
-	text_health.setStyle(Text::Bold);
-	// Текст секундомера
-	Text text_timer("", font, 30);
-	text_timer.setOutlineColor(Color::Red);
-	text_timer.setStyle(Text::Bold);
-	// Текст миссии
-	Text text_mission("", font, 30);
-	text_mission.setFillColor(Color::Black);
-
 	// Текстуры карты
 	Texture textute_map;
 	textute_map.loadFromFile("images/map.png");
 	Sprite sprite_map;
 	sprite_map.setTexture(textute_map);
-	// Текстура окна описания мисии
-	Texture texture_missionWindow;
-	texture_missionWindow.loadFromFile("images/missionbg.jpg");
-	Sprite sprite_missionWindow;
-	sprite_missionWindow.setTexture(texture_missionWindow);
-	sprite_missionWindow.setTextureRect(IntRect(0, 0, 340, 510));
-	sprite_missionWindow.setScale(0.85f, 0.6f);	// Уменьшаем размер спрайта/картинки
-
-	float currentFrame(0);		//Текущий кадр
-	Clock clock;
-
-	Clock clock_gameTime;
-	int gameTime(0);			// Считает время игры
-
-	Player p1("hero.png", 250, 500, 96, 56);	// Создание и первоначальное размещение персонажа
-	moveCamera(p1.m_x, p1.m_y);		// Установка начальной позиции камеры на управляемом персонаже
-
-	bool showMissionText = false;	// Отвечает за появление текста на экране
-
-	// Рандомно добавляем камень
+	// Рандомно добавляем камни, цветы, сердца
 	randomMapGenerator();
 
-	// Для перетаскивания объекта, мыщью
-	bool isMove(false);	// Для шелчка мыши по спрайту
-	float dx(0);		// корректировка движения по x
-	float dy(0);		// корректировка движения по y
+	Clock clock;
+	// Игрок
+	Image player_image;
+	player_image.loadFromFile("images/MilesTailsPrower.gif");
+	Player p1(player_image, 250, 500, 96, 56, "Player1");	// Создание и первоначальное размещение персонажа
+	moveCamera(p1.m_x, p1.m_y);		// Установка начальной позиции камеры на управляемом персонаже
 
-	// Переменные для движения выделенного объекта по щелчку мыши
-	int tempX(0);	// Запоминаем координату x по щелчку мыши
-	int tempY(0);	// Запоминаем координату y по щелчку мыши
-	float distance(0);	// Расстояние от выделенного объекта до места щелчка мыши
+	//// Шрифт
+	//Font font;
+	//font.loadFromFile("images/CyrilicOld.TTF");
+	//// Текст счетчик камней
+	//Text text_score("", font, 20);				// Надписть, шрифт, размер шрифта
+	////text_score.setFillColor(Color::Red);		// Цвет текста
+	//text_score.setOutlineColor(Color::Black);	// Цвет контура текста
+	//text_score.setStyle(Text::Bold);			// Жирный текст
+	//// Текст индикатор здоровья
+	//Text text_health("", font, 30);
+	//text_health.setFillColor(Color::Green);
+	//text_health.setStyle(Text::Bold);
+	//// Для секундомера
+	//Clock clock_gameTime;
+	//int gameTime(0);			// Считает время игры
+	//Text text_timer("", font, 30);
+	//text_timer.setOutlineColor(Color::Red);
+	//text_timer.setStyle(Text::Bold);
+	//// Текст миссии
+	//Text text_mission("", font, 30);
+	//text_mission.setFillColor(Color::Black);
+	//// Текстура окна описания мисии
+	//Texture texture_missionWindow;
+	//texture_missionWindow.loadFromFile("images/missionbg.jpg");
+	//Sprite sprite_missionWindow;
+	//sprite_missionWindow.setTexture(texture_missionWindow);
+	//sprite_missionWindow.setTextureRect(IntRect(0, 0, 340, 510));
+	//sprite_missionWindow.setScale(0.85f, 0.6f);	// Уменьшаем размер спрайта/картинки
+	//bool showMissionText = false;	// Отвечает за появление текста на экране
+	//// Для перетаскивания объекта, мыщью
+	//bool isMove(false);	// Для шелчка мыши по спрайту
+	//float dx(0);		// корректировка движения по x
+	//float dy(0);		// корректировка движения по y
+	//// Переменные для движения выделенного объекта по щелчку мыши
+	//int tempX(0);	// Запоминаем координату x по щелчку мыши
+	//int tempY(0);	// Запоминаем координату y по щелчку мыши
+	//float distance(0);	// Расстояние от выделенного объекта до места щелчка мыши
 
 	// Главный цикл приложения: выполняется, пока открыто окно
 	while (window.isOpen())
 	{
+		//// Для секундомера
+		//if (p1.m_life)
+		//	gameTime = static_cast<int>(clock_gameTime.getElapsedTime().asSeconds());	// Процесс подсчета времени игры
+		//else
+		//	camera.rotate(0.5f);	// При проиграше вращать камеру
+
 		float time = static_cast<float>(clock.getElapsedTime().asMicroseconds());
-
-		if (p1.m_life)
-			gameTime = static_cast<int>(clock_gameTime.getElapsedTime().asSeconds());	// Процесс подсчета времени игры
-		else
-			camera.rotate(0.5f);	// При проиграше вращать камеру
-
 		clock.restart();
 		time /= c_Speed;		//Скорость игры
 
@@ -101,63 +96,59 @@ int main()
 			if (event.type == Event::Closed)
 				window.close();
 
-			if (event.type == Event::MouseButtonPressed)	// Если была нажата кнопка мыши
-			{
-				if (event.key.code == Mouse::Left)			// Если кнопка мыши была лева
-					// Если игровые координаты мыши входят в область спрайта льва
-					if (p1.m_sprite.getGlobalBounds().contains(pos.x, pos.y))
-					{
-						std::cout << "Is clicked on Leon!\n";
-						// Получаем разность между позицией курсора и спрайта по x
-						dx = pos.x - p1.m_sprite.getPosition().x;
-						// Получаем разность между позицией курсора и спрайта по y
-						dy = pos.y - p1.m_sprite.getPosition().y;
-						isMove = true;	// Разрешаем перемещение спрайта
-
-						p1.m_sprite.setColor(Color::Green);
-						p1.m_isSelect = true;
-					}
-					else
-						if (p1.m_isSelect)
-						{
-							p1.m_isSelect = false;
-							p1.m_sprite.setColor(Color::White);
-						}
-				// Если персонаж выделен и щелкаем правой кнопкой мыши
-				if (event.key.code == Mouse::Right && p1.m_isSelect)
-				{
-					p1.m_isMove = true;
-					tempX = static_cast<int>(pos.x);
-					tempY = static_cast<int>(pos.y);
-
-					//Для поворачивания персонажа при автономном движении
-					float d_x = pos.x - p1.m_x;	// вектор, колинеарной прямой, которая пересекает спрайт и курсор
-					float d_y = pos.y - p1.m_y;	// тоже самое по оси y
-					// Получаем угол в радианах и переводим его в градусы
-					float rotation = static_cast<float>((atan2(d_y, d_x)) * 180 / 3.14159265);
-					std::cout << rotation << '\n';
-					p1.m_sprite.setRotation(rotation);	// Поворачиваем спрайт на полученный градусы
-				}
-			}
-			
-			// После отпускания нажатия левой кнопки мыши (для перетаскивания)
-			if (event.type == Event::MouseButtonReleased)
-				if (event.key.code == Mouse::Left)
-					isMove = false;
-			if (isMove)		// Если перетаскивание
-			{
-				// Отнимаем разность(dx и dy), чтобы "тащить" спрайт за то место куда кликнули мышью
-				p1.m_x = (pos.x - dx);
-				p1.m_y = (pos.y - dy);
-			}
-
-			// Включение отрисовки листа заданий
-			if (event.type == Event::KeyReleased)
-				if (event.key.code == Keyboard::Tab)
-					if (showMissionText)
-						showMissionText = false;
-					else
-						showMissionText = true;
+			//if (event.type == Event::MouseButtonPressed)	// Если была нажата кнопка мыши
+			//{
+			//	if (event.key.code == Mouse::Left)			// Если кнопка мыши была левая
+			//		// Если игровые координаты мыши входят в область спрайта льва
+			//		if (p1.m_sprite.getGlobalBounds().contains(pos.x, pos.y))
+			//		{
+			//			std::cout << "Is clicked on Leon!\n";
+			//			// Получаем разность между позицией курсора и спрайта по x
+			//			dx = pos.x - p1.m_sprite.getPosition().x;
+			//			// Получаем разность между позицией курсора и спрайта по y
+			//			dy = pos.y - p1.m_sprite.getPosition().y;
+			//			isMove = true;	// Разрешаем перемещение спрайта
+			//			p1.m_sprite.setColor(Color::Green);
+			//			p1.m_isSelect = true;
+			//		}
+			//		else
+			//			if (p1.m_isSelect)
+			//			{
+			//				p1.m_isSelect = false;
+			//				p1.m_sprite.setColor(Color::White);
+			//			}
+			//	// Если персонаж выделен и щелкаем правой кнопкой мыши
+			//	if (event.key.code == Mouse::Right && p1.m_isSelect)
+			//	{
+			//		p1.m_isMove = true;
+			//		tempX = static_cast<int>(pos.x);
+			//		tempY = static_cast<int>(pos.y);
+			//		//Для поворачивания персонажа при автономном движении
+			//		float d_x = pos.x - p1.m_x;	// вектор, колинеарной прямой, которая пересекает спрайт и курсор
+			//		float d_y = pos.y - p1.m_y;	// тоже самое по оси y
+			//		// Получаем угол в радианах и переводим его в градусы
+			//		float rotation = static_cast<float>((atan2(d_y, d_x)) * 180 / 3.14159265);
+			//		std::cout << rotation << '\n';
+			//		p1.m_sprite.setRotation(rotation);	// Поворачиваем спрайт на полученный градусы
+			//	}
+			//}		
+			//// После отпускания нажатия левой кнопки мыши (для перетаскивания)
+			//if (event.type == Event::MouseButtonReleased)
+			//	if (event.key.code == Mouse::Left)
+			//		isMove = false;
+			//if (isMove)		// Если перетаскивание
+			//{
+			//	// Отнимаем разность(dx и dy), чтобы "тащить" спрайт за то место куда кликнули мышью
+			//	p1.m_x = (pos.x - dx);
+			//	p1.m_y = (pos.y - dy);
+			//}
+			//// Включение отрисовки листа заданий
+			//if (event.type == Event::KeyReleased)
+			//	if (event.key.code == Keyboard::Tab)
+			//		if (showMissionText)
+			//			showMissionText = false;
+			//		else
+			//			showMissionText = true;
 		}
 
 		//// Автономное перемещение выделенного персонажа к указанным координатам

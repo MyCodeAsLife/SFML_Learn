@@ -584,7 +584,6 @@ copy /Y "$(SolutionDir)extlibs\bin\$(PlatformTarget)\openal32.dll"  "$(TargetDir
     <ClInclude Include="extlibs\include\SFML\Window\WindowStyle.hpp" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Map.h" />
-    <ClInclude Include="Mission.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="View.h" />
   </ItemGroup>
