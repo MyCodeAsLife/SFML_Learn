@@ -1,149 +1,120 @@
 #include "Player.h"
 
-
-Player::Player(String fileName, float x, float y, float width, float height) :
-	m_fileName(fileName), m_x(x), m_y(y), m_width(width), m_height(height), m_isSelect(false), m_state(stay),
-	m_dx(0), m_dy(0), m_score(0), m_health(100), m_life(true), m_isMove(false), m_onGround(false)
+Player::Player(String F, float X, float Y, float W, float H)
 {
-	m_image.loadFromFile("images/" + m_fileName);
-	m_image.createMaskFromColor(Color(41, 33, 59));		//Удаляем тень под львом
+
+	m_speed = 0; m_score = 0; m_health = 100; m_dx = 0; m_dy = 0;
+	m_life = true; m_isMove = false; m_isSelect = false; m_onGround = false;
+	m_file = F;
+	m_width = W; m_height = H;
+	m_image.loadFromFile("images/" + m_file);
+	m_image.createMaskFromColor(Color(41, 33, 59));
 	m_texture.loadFromImage(m_image);
 	m_sprite.setTexture(m_texture);
-	m_sprite.setTextureRect(IntRect(0, 134, 96, 96));
+
+	m_x = X; m_y = Y;
+	m_sprite.setTextureRect(IntRect(0, 134, m_width, m_height));
+	m_sprite.setOrigin(m_width / 2, m_height / 2);
 }
 
-void Player::update(float time)
+void Player::control(const float time)
 {
-	control(time);		// Функция управления персонажем
-	////////////////////////////////Остановился тут////////////////////////////////
-	switch (m_state)
+	if (Keyboard::isKeyPressed(Keyboard::Left)) {
+		m_state = left;
+		m_speed = 0.1f;
+		moveCamera(m_x, m_y);
+		static float currentFrame(0);
+		currentFrame += 0.005*time;
+		if (currentFrame > 3) currentFrame -= 3;
+		m_sprite.setTextureRect(IntRect(96 * int(currentFrame), 135, 96, 54));
+	}
+	if (Keyboard::isKeyPressed(Keyboard::Right)) {
+		m_state = right;
+		m_speed = 0.1f;
+		moveCamera(m_x, m_y);
+		static float currentFrame(0);
+		currentFrame += 0.005 * time;
+		if (currentFrame > 3) currentFrame -= 3;
+		m_sprite.setTextureRect(IntRect(96 * int(currentFrame), 232, 96, 54));
+	}
+
+	if ((Keyboard::isKeyPressed(Keyboard::Up)) && (m_onGround)) {
+		m_state = jump;
+		m_dy = -0.4f;
+		m_onGround = false;	// то состояние равно прыжок,прыгнули и сообщили, что мы не на земле
+		moveCamera(m_x, m_y);
+		//currentFrame += 0.005*time;
+		//if (currentFrame > 3) currentFrame -= 3;
+		//p.sprite.setTextureRect(IntRect(96 * int(currentFrame), 307, 96, 96));
+	}
+
+	if (Keyboard::isKeyPressed(Keyboard::Down)) {
+		m_state = down;
+		m_speed = 0.1;
+		moveCamera(m_x, m_y);
+		//currentFrame += 0.005*time;
+		//if (currentFrame > 3) currentFrame -= 3;
+		//p.sprite.setTextureRect(IntRect(96 * int(currentFrame), 0, 96, 96));
+	}
+}
+
+void Player::update(const float time)
+{
+	control(time);//функция управления персонажем
+	switch (m_state)//тут делаются различные действия в зависимости от состояния
 	{
 	case right:
-		m_dx = m_speed;		//Смещение вправо
-		m_dy = 0;
-		break;
+		m_dx = m_speed;
+		break;//состояние идти вправо
 	case left:
-		m_dx = -m_speed;	//Смещение влево
-		m_dy = 0;
-		break;
-	case down:
-		m_dx = 0;
-		m_dy = m_speed;		//Смещение вниз
-		break;
+		m_dx = -m_speed;
+		break;//состояние идти влево
 	case up:
-		m_dx = 0;
-		m_dy = -m_speed;	//Смещение вверх
-		break;
+		break;//будет состояние поднятия наверх (например по лестнице)
+	case down:
+		break;//будет состояние во время спуска персонажа (например по лестнице)
+	case jump:
+		break;//здесь может быть вызов анимации
+	case stay:
+		break;//и здесь тоже		
 	}
 
-	m_x += m_dx * time;		//Смещение по х
-	m_y += m_dy * time;		//Смещение по y
-
-	m_speed = 0;					//Зануляем скорость, чтоб персонаж останавливался если не нажаты клавиши движения
-	m_sprite.setPosition(m_x , m_y );	//Устанавливаем позицию спрайта
-	// Устанавливаем начальные координаты спрайта в его центре
-	// Чтобы координаты переданные в функцию setPosition у казывали
-	// не на левый верхгий угол спрайта, а на его центр
-	m_sprite.setOrigin(m_width / 2, m_height / 2);
-	interactionWithMap();
-
+	m_x += m_dx * time;
+	checkCollisionWithMap(m_dx, 0);//обрабатываем столкновение по Х
+	m_y += m_dy * time;
+	checkCollisionWithMap(0, m_dy);//обрабатываем столкновение по Y
+	if (!m_isMove)
+		m_speed = 0;
+	m_sprite.setPosition(m_x + m_width / 2, m_y + m_height / 2); //задаем позицию спрайта в место его центра
 	if (m_health <= 0)
-	{
-		m_health = 0;
 		m_life = false;
-	}
+	m_dy = m_dy + 0.0005 * time;//делаем притяжение к земле
+	if (!m_onGround)	// если мы в прижке, камера следит за персонажем
+		moveCamera(m_x, m_y);
 }
 
-void Player::interactionWithMap()
+void Player::checkCollisionWithMap(float Dx, float Dy)
 {
-	for (int i = static_cast<int>(m_y / 32); i < (m_y + m_height) / 32; i++)//проходимся по тайликам, контактирующим с игроком, то есть по всем квадратикам размера 32*32, которые мы окрашивали в 9 уроке. про условия читайте ниже.
-		for (int j = static_cast<int>(m_x / 32); j < (m_x + m_width) / 32; j++)//икс делим на 32, тем самым получаем левый квадратик, с которым персонаж соприкасается. (он ведь больше размера 32*32, поэтому может одновременно стоять на нескольких квадратах). А j<(x + w) / 32 - условие ограничения координат по иксу. то есть координата самого правого квадрата, который соприкасается с персонажем. таким образом идем в цикле слева направо по иксу, проходя по от левого квадрата (соприкасающегося с героем), до правого квадрата (соприкасающегося с героем)
+	for (int i = m_y / 32; i < (m_y + m_height) / 32; i++)//проходимся по элементам карты
+		for (int j = m_x / 32; j < (m_x + m_width) / 32; j++)
 		{
-			if (TileMap[i][j] == '0')//если наш квадратик соответствует символу 0 (стена), то проверяем "направление скорости" персонажа:
+			if (TileMap[i][j] == '0')//если элемент наш тайлик земли? то
 			{
-				if (m_dy > 0)//если мы шли вниз,
-				{
-					m_y = i * 32 - m_height;//то стопорим координату игрек персонажа. сначала получаем координату нашего квадратика на карте(стены) и затем вычитаем из высоты спрайта персонажа.
+				if (Dy > 0)	// по Y вниз=>идем в пол(стоим на месте) или падаем. В этот момент надо вытолкнуть ...
+				{			//... персонажа и поставить его на землю, при этом говорим что мы на земле тем самым снова можем прыгать
+					m_y = i * 32 - m_height;
+					m_dy = 0;
+					m_onGround = true;
 				}
-				if (m_dy < 0)
+				if (Dy < 0)	//столкновение с верхними краями карты(может и не пригодиться)
 				{
-					m_y = static_cast<float>(i * 32 + 32);//аналогично с ходьбой вверх. dy<0, значит мы идем вверх (вспоминаем координаты паинта)
+					m_y = i * 32 + 32;
+					m_dy = 0;
 				}
-				if (m_dx > 0)
-				{
-					m_x = j * 32 - m_width;//если идем вправо, то координата Х равна стена (символ 0) минус ширина персонажа
-				}
-				if (m_dx < 0)
-				{
-					m_x = static_cast<float>(j * 32 + 32);	//аналогично идем влево
-				}
+				if (Dx > 0)	//с правым краем карты
+					m_x = j * 32 - m_width;
+				if (Dx < 0)	// с левым краем карты
+					m_x = j * 32 + 32;
 			}
-
-			if (TileMap[i][j] != ' ')
-				switch (TileMap[i][j])
-				{
-				case 's':
-					++m_score;
-					TileMap[i][j] = ' ';
-					break;
-				case 'f':
-					m_health -= 40;
-					TileMap[i][j] = ' ';
-					break;
-				case 'h':
-					m_health += 20;
-					TileMap[i][j] = ' ';
-					break;
-				}
 		}
-}
-
-// Движение и анимация движения
-void Player::control(float time)
-{
-	if (m_life)
-	{
-		// Управление персонажем, пока кнопка нажата
-		if (Keyboard::isKeyPressed(Keyboard::Up))
-		{
-			m_state = up;
-			m_speed = 0.1f;
-			moveCamera(getX(), getY());
-			static float currentFrame(0);		//У каждого метода свой дабы не суммировались при нажатии нескольких клавиш
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3)
-				currentFrame -= 3;
-			m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame) + 5, 288 + 5, 90, 90));	// Выбор фрейма анимации
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Down))
-		{
-			m_state = down;
-			m_speed = 0.1f;
-			moveCamera(getX(), getY());
-			static float currentFrame(0);
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame) + 5, 0 + 5, 90, 90));
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Left))
-		{
-			m_state = left;
-			m_speed = 0.1f;
-			moveCamera(getX(), getY());
-			static float currentFrame(0);
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame) + 5, 96 +5, 90, 90));
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Right))
-		{
-			m_state = right;
-			m_speed = 0.1f;
-			moveCamera(getX(), getY());
-			static float currentFrame(0);
-			currentFrame += 0.005f * time;
-			if (currentFrame > 3) currentFrame -= 3;
-			m_sprite.setTextureRect(IntRect(96 * static_cast<int>(currentFrame) + 5, 192 + 5, 90, 90));
-		}
-	}
 }

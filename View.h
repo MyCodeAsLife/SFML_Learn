@@ -4,7 +4,7 @@
 
 View camera;	// Создаем объект камеры
 
-void moveCamera(float x, float y)
+void moveCamera(const float x, const float y)
 {
 	float temp_x(x + 50);
 	float temp_y(y + 70);

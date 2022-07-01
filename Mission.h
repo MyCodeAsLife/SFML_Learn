@@ -1,6 +1,6 @@
 #pragma once
 
-int getCurrentMission(int x)
+int getCurrentMission(const int x)
 {
 	int mission(0);
 	if ((x > 0) && (x < 400))
@@ -15,7 +15,7 @@ int getCurrentMission(int x)
 	return mission;
 }
 
-std::string getTextMission(int currentMission)
+std::string getTextMission(const int currentMission)
 {
 	std::string missinText = "";
 	switch (currentMission)

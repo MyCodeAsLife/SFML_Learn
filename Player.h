@@ -4,38 +4,49 @@
 
 
 extern sf::String TileMap[];				// Объявляем что бы не словить ошибку многократного включения
-extern void moveCamera(float x, float y);	// Объявляем что бы не словить ошибку многократного включения
+extern void moveCamera(const float x, const float y);	// Объявляем что бы не словить ошибку многократного включения
 extern View camera;							// Объявляем что бы не словить ошибку многократного включения
 
-class Player
-{
-protected:
-	float m_x, m_y;				// Координаты игрока
+class Player {
 
 public:
-	float m_width, m_height;	// Высота и ширина кализии спрайта
-	float m_dx, m_dy;			// Ускорение по х и по у
-	float m_speed = 0;			// Скорость
-	int m_score = 0;			// Собранно камней
-	int m_health;				// Жизни
-	bool m_life;				// Состояние "жив\мертв"
-	bool m_isMove;				// Состояние персонажа (двигается\стоит)
-	bool m_isSelect;			// Состояние персонажа (выделен\нет)
-	bool m_onGround;			// Состояние персонажа (стоит на поверхности\нет)
-	String m_fileName;			// Имя файла и его расширение
-	Image m_image;				// Изображение
-	Texture m_texture;			// Текстура
-	Sprite m_sprite;			// Спрайт
-	enum stateObject { left, right, up, down, jump, stay };
-	stateObject m_state;
+	float m_width, m_height, m_dx, m_dy, m_x, m_y, m_speed;
+	int m_score, m_health;
+	bool m_life, m_isMove, m_isSelect, m_onGround;//добавили переменные состояния нахождения на земле
+	enum { left, right, up, down, jump, stay } m_state;//добавляем тип перечисления - состояние объекта
+	String m_file;
+	Image m_image;
+	Texture m_texture;
+	Sprite m_sprite;
+	Player(String F, float X, float Y, float W, float H);
+	void control(const float time);
+	void update(const float time);
 
+	float getplayercoordinateX() {
+		return m_x;
+	}
+	float getplayercoordinateY() {
+		return m_y;
+	}
+
+	void checkCollisionWithMap(float Dx, float Dy);	//ф ция проверки столкновений с картой
+
+};
+
+class SpriteManager {//это задел на следующие уроки,прошу не обращать внимания на эти изменения)
 public:
-	Player(String fileName, float x, float y, float width, float height);
-	void update(float time);
-	float getX() { return m_x; }
-	float getY() { return m_y; }
-	void setX(float x) { m_x = x; }
-	void setY(float y) { m_y = y; }
-	void interactionWithMap();
-	void control(float time);
+	Image m_image;
+	Texture m_texture;
+	Sprite m_sprite;
+	String m_name;
+	String m_file;
+	int m_widthOfSprite;
+	int m_heightOfSprite;
+	SpriteManager(String file, String Name) {
+		m_file = file;
+		m_name = Name;
+		m_image.loadFromFile("images/" + m_file);
+		m_texture.loadFromImage(m_image);
+		m_sprite.setTexture(m_texture);
+	}
 };
