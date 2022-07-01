@@ -3,6 +3,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "View.h"
+#include "Level.h"
 
 
 
@@ -32,8 +33,13 @@ int main()
 	// Игрок
 	Image player_image;
 	player_image.loadFromFile("images/MilesTailsPrower.gif");
-	Player p1(player_image, 250, 500, 96, 56, "Player1");	// Создание и первоначальное размещение персонажа
+	Player p1(player_image, 250, 500, 43, 30, "Player1");	// Создание и первоначальное размещение персонажа
 	moveCamera(p1.m_x, p1.m_y);		// Установка начальной позиции камеры на управляемом персонаже
+	// Враг
+	Image easeEnemyEmage;
+	easeEnemyEmage.loadFromFile("images/shamaich.png");
+	easeEnemyEmage.createMaskFromColor(Color(255, 0, 0)); // Удаляем фон картинки
+	Enemy en1(easeEnemyEmage, 250, 500, 200, 97, "EasyEnemy");
 
 	//// Шрифт
 	//Font font;
@@ -234,6 +240,9 @@ int main()
 				window.draw(sprite_map);	// Отрисовка тайла карты
 			}
 
+		// Отрисовка противника
+		en1.update(time);
+		window.draw(en1.m_sprite);
 		// Отрисовка льва
 		p1.update(time);
 		window.draw(p1.m_sprite);

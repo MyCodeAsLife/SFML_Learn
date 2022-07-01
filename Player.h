@@ -27,17 +27,12 @@ public:
 
 };
 
+//	Класс игрового персонажа
 class Player: public Entity
 {
 public:
-	//float m_width, m_height, m_dx, m_dy, m_x, m_y, m_speed;
 	int m_score;
-	//bool m_life, m_isMove, m_isSelect, m_onGround;//добавили переменные состояния нахождения на земле
 	enum { left, right, up, down, jump, stay } m_state;//добавляем тип перечисления - состояние объекта
-	//String m_file;
-	//Image m_image;
-	//Texture m_texture;
-	//Sprite m_sprite;
 
 public:
 	Player(Image& image, float X, float Y, int W, int H, const String& name);
@@ -65,4 +60,14 @@ public:
 		m_texture.loadFromImage(m_image);
 		m_sprite.setTexture(m_texture);
 	}
+};
+
+// Класс противника
+class Enemy :public Entity
+{
+public:
+	Enemy(Image& image, float X, float Y, int W, int H, const String& name);
+	void checkCollisionWithMap(const float Dx, const float Dy);
+	void update(const float time);
+
 };
