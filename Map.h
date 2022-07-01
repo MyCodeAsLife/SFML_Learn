@@ -10,25 +10,25 @@ sf::String TileMap[c_HEIGHT_MAP] = {
 	"0000000000000000000000000000000000000000",
 	"0                                      0",
 	"0                                      0",
-	"0                f                     0",
-	"0                        h             0",
 	"0                                      0",
 	"0                                      0",
-	"0                                f     0",
-	"0                                      0",
-	"0            h                         0",
-	"0                                      0",
-	"0    f                                 0",
-	"0                                      0",
-	"0                    h                 0",
 	"0                                      0",
 	"0                                      0",
-	"0             f               f        0",
-	"0                                      0",
-	"0      f                               0",
 	"0                                      0",
 	"0                                      0",
-	"0           f                 f        0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
+	"0                                      0",
 	"0                                      0",
 	"0                                      0",
 	"0000000000000000000000000000000000000000",
@@ -39,9 +39,12 @@ void randomMapGenerator()
 	int randomElementX(0);		// Случайная координата по х
 	int randomElementY(0);		// Случайная координата по y
 
-	srand(time(0));
+	srand(static_cast<unsigned>(time(0)));
 	int countStoun(10);			// Сколько всего будет сгенерированно камней
+	int countHearth(4);			// Всего сердец
+	int countFlower(6);			// Всего цветов
 
+	// Разбрасываем камни
 	while (countStoun > 0)
 	{
 		randomElementX = 1 + rand() % (c_WIDTH_MAP - 1);		// Рандом от 1 до ширины карты минус 1, чтоб нетрогать бордюр
@@ -49,8 +52,31 @@ void randomMapGenerator()
 		if (TileMap[randomElementY][randomElementX] == ' ')
 		{
 			TileMap[randomElementY][randomElementX] = 's';
-			std::cout << "Coordinate of stoun: x = " << randomElementX << " | y = " << randomElementY << '\n';
 			--countStoun;
+		}
+	}
+
+	// Разбрасываем сердца
+	while (countHearth > 0)
+	{
+		randomElementX = 1 + rand() % (c_WIDTH_MAP - 1);		// Рандом от 1 до ширины карты минус 1, чтоб нетрогать бордюр
+		randomElementY = 1 + rand() % (c_HEIGHT_MAP - 1);		// Рандом от 1 до высоты карты минус 1, чтоб нетрогать бордюр
+		if (TileMap[randomElementY][randomElementX] == ' ')
+		{
+			TileMap[randomElementY][randomElementX] = 'h';
+			--countHearth;
+		}
+	}
+
+	// Разбрасываем сердца
+	while (countFlower > 0)
+	{
+		randomElementX = 1 + rand() % (c_WIDTH_MAP - 1);		// Рандом от 1 до ширины карты минус 1, чтоб нетрогать бордюр
+		randomElementY = 1 + rand() % (c_HEIGHT_MAP - 1);		// Рандом от 1 до высоты карты минус 1, чтоб нетрогать бордюр
+		if (TileMap[randomElementY][randomElementX] == ' ')
+		{
+			TileMap[randomElementY][randomElementX] = 'f';
+			--countFlower;
 		}
 	}
 }
