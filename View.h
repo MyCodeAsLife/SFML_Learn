@@ -6,12 +6,8 @@ View camera;	// Создаем объект камеры
 
 void moveCamera(const float x, const float y)
 {
-	float temp_x(x + 50);
-	float temp_y(y + 70);
-	//if (temp_x < 320)		// Левая граница смещения камры
-	//	temp_x = 320;
-	//if (temp_y < 240)		// Верхняя граница смещения камеры
-	//	temp_y = 240;
+	float temp_x(x + 20);
+	float temp_y(y + 50);
 	camera.setCenter(temp_x, temp_y);
 	
 }

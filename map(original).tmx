@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="27" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#4d538c" nextlayerid="4" nextobjectid="65">
- <tileset firstgid="1" name="Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet" tilewidth="32" tileheight="32" tilecount="360" columns="60">
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="27" tilewidth="32" tileheight="32" backgroundcolor="#4d538c" nextobjectid="60">
+ <tileset firstgid="1" name="Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet" tilewidth="32" tileheight="32">
   <image source="images/Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet.png" width="1920" height="192"/>
  </tileset>
- <layer id="1" name="Слой тайлов 2" width="50" height="27">
+ <layer name="Слой тайлов 2" width="50" height="27">
   <data>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -618,7 +618,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="218"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -628,7 +628,7 @@
    <tile gid="201"/>
    <tile gid="260"/>
    <tile gid="261"/>
-   <tile gid="218"/>
+   <tile gid="260"/>
    <tile gid="261"/>
    <tile gid="260"/>
    <tile gid="261"/>
@@ -668,7 +668,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="218"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -678,7 +678,7 @@
    <tile gid="261"/>
    <tile gid="200"/>
    <tile gid="201"/>
-   <tile gid="218"/>
+   <tile gid="200"/>
    <tile gid="201"/>
    <tile gid="200"/>
    <tile gid="201"/>
@@ -718,7 +718,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="218"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -728,7 +728,7 @@
    <tile gid="201"/>
    <tile gid="260"/>
    <tile gid="261"/>
-   <tile gid="218"/>
+   <tile gid="260"/>
    <tile gid="261"/>
    <tile gid="260"/>
    <tile gid="261"/>
@@ -768,7 +768,7 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="278"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -778,7 +778,7 @@
    <tile gid="261"/>
    <tile gid="200"/>
    <tile gid="201"/>
-   <tile gid="278"/>
+   <tile gid="200"/>
    <tile gid="201"/>
    <tile gid="200"/>
    <tile gid="201"/>
@@ -818,17 +818,17 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="338"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="278"/>
-   <tile gid="338"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
+   <tile gid="199"/>
+   <tile gid="200"/>
+   <tile gid="201"/>
+   <tile gid="260"/>
+   <tile gid="261"/>
+   <tile gid="260"/>
    <tile gid="261"/>
    <tile gid="260"/>
    <tile gid="261"/>
@@ -1357,7 +1357,7 @@
    <tile gid="338"/>
   </data>
  </layer>
- <layer id="2" name="Слой тайлов 2" width="50" height="27">
+ <layer name="Слой тайлов 2" width="50" height="27">
   <data>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -2711,7 +2711,7 @@
    <tile gid="0"/>
   </data>
  </layer>
- <objectgroup id="3" name="collision">
+ <objectgroup name="collision">
   <object id="49" name="solid" x="703.86" y="769.542" width="801" height="45"/>
   <object id="50" name="solid" x="671.86" y="801.542" width="32" height="64"/>
   <object id="51" name="solid" x="83.8604" y="846.876" width="584" height="16"/>
@@ -2721,10 +2721,5 @@
   <object id="57" name="solid" x="863.86" y="675.542" width="31" height="89"/>
   <object id="58" name="solid" x="212" y="605.333" width="72" height="240"/>
   <object id="59" name="solid" x="1305.33" y="380" width="40" height="293.333"/>
-  <object id="60" name="easyEnemy" x="356.684" y="746.431" width="200" height="97"/>
-  <object id="61" name="solid" x="448.353" y="511.773" width="287.285" height="32.0948"/>
-  <object id="62" name="solid" x="735.773" y="384.106" width="32.4545" height="159.788"/>
-  <object id="63" name="solid" x="415.773" y="383.981" width="32.4545" height="159.788"/>
-  <object id="64" name="easyEnemy" x="488.667" y="410.833" width="200" height="97"/>
  </objectgroup>
 </map>
