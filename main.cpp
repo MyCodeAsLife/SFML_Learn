@@ -47,6 +47,16 @@ public:
 
 };
 
+// Класс противника
+class Enemy :public Entity
+{
+public:
+	Enemy(Image& image, const String& name, Level& lvl, float X, float Y, int W, int H);
+	void checkCollisionWithMap(const float Dx, const float Dy);
+	void update(const float time);
+
+};
+
 class SpriteManager {//это задел на следующие уроки,прошу не обращать внимания на эти изменения)
 public:
 	Image m_image;
@@ -63,16 +73,6 @@ public:
 		m_texture.loadFromImage(m_image);
 		m_sprite.setTexture(m_texture);
 	}
-};
-
-// Класс противника
-class Enemy :public Entity
-{
-public:
-	Enemy(Image& image, const String& name, Level& lvl, float X, float Y, int W, int H);
-	void checkCollisionWithMap(const float Dx, const float Dy);
-	void update(const float time);
-
 };
 
 ////////////////////////////////////////////START MAIN///////////////////////////////////////////////////////////////
@@ -130,18 +130,18 @@ int main()
 		// Отрисовка карты
 		lvl.Draw(window);
 
-		// Отрисовка персонажа игрока
-		p1.update(time);
+
 
 		 // Отрисовка и удаление противника(ов)
 		if (!entity_array.empty())	// Если есть противники то выполняем над ними действия
-		for (auto it = entity_array.begin(); it != entity_array.end();++it)
+			for (auto it = entity_array.begin(); it != entity_array.end();)
 		{
 			// Столкновение с противником
 			if ((*it)->getRect().intersects(p1.getRect()))	//Если объект противника пересекается с игроком
 			{
 				if ((*it)->m_name == "easyEnemy")	// Если противник является типа "easyEnemy"
 				{
+					// Падение на противника
 					if ((p1.m_dy > 0) && (p1.m_onGround == false))	// Если персонаж падает
 					{
 						(*it)->m_dx = 0.f;		// Останавливаем противника
@@ -150,10 +150,38 @@ int main()
 					}
 					else
 						p1.m_health -= 5;		// иначе получаем повреждения
+					// Столкновение противника с игроком (есть баг, потихоньку толкает игрока)
+
+					if ((*it)->m_dx < 0 || p1.m_dx > 0)	// Противник справа, игрок слева
+					{
+						(*it)->m_x = p1.m_x + p1.m_width;
+						(*it)->m_dx = -((*it)->m_dx);
+						(*it)->m_sprite.scale(-1, 1);
+					}
+					if ((*it)->m_dx > 0 || p1.m_dx < 0)			// Противник слева, игрок справа
+					{
+						(*it)->m_x = p1.m_x - (*it)->m_width;
+						(*it)->m_dx = -((*it)->m_dx);
+						(*it)->m_sprite.scale(-1, 1);
+					}
+					//if (p1.m_dx < 0)
+					//	p1.m_x = (*it)->m_x + (*it)->m_width;
+					//if (p1.m_dx > 0)
+					//	p1.m_x = (*it)->m_x - p1.m_width;
 				}
 			}
-			(*it)->update(time);
+			//// Обработка столкновений противников между собой
+			//for (auto it2 = entity_array.begin(); it2 != entity_array.end(); ++it2)
+			//{
+			//	if ((*it2) != (*it))
+			//		if ((*it2)->getRect().intersects((*it)->getRect()))
+			//		{
+			//			(*it2)->m_dx = -((*it2)->m_dx);
+			//			(*it2)->m_sprite.scale(-1, 1);
+			//		}
+			//}
 			// Удаление/отрисовка противника
+			(*it)->update(time);
 			if ((*it)->m_life == false)				// Проверяем жив ли объект
 			{
 				delete* it;							// Удаляем из памяти
@@ -164,8 +192,13 @@ int main()
 			{
 				window.draw((*it)->m_sprite);		// Если жив, отрисовываем
 			}
+			++it;
 		}
 
+		// Отрисовка персонажа игрока
+		p1.update(time);
+
+		// Отрисовка игрока
 		window.draw(p1.m_sprite);
 
 		// Установка камеры
@@ -192,7 +225,6 @@ void Player::control(const float time)
 	if (Keyboard::isKeyPressed(Keyboard::Left)) {
 		m_state = left;
 		m_speed = 0.1f;
-		moveCamera(m_x, m_y);
 		//static float currentFrame(0);
 		//currentFrame += 0.005*time;
 		//if (currentFrame > 3) currentFrame -= 3;
@@ -201,7 +233,6 @@ void Player::control(const float time)
 	if (Keyboard::isKeyPressed(Keyboard::Right)) {
 		m_state = right;
 		m_speed = 0.1f;
-		moveCamera(m_x, m_y);
 		//static float currentFrame(1);
 		//currentFrame += 0.005f * time;
 		//if (currentFrame > 5)
@@ -212,8 +243,7 @@ void Player::control(const float time)
 	if ((Keyboard::isKeyPressed(Keyboard::Up)) && (m_onGround)) {
 		m_state = jump;
 		m_dy = -0.4f;
-		m_onGround = false;	// то состояние равно прыжок,прыгнули и сообщили, что мы не на земле
-		moveCamera(m_x, m_y);
+		//m_onGround = false;	// то состояние равно прыжок,прыгнули и сообщили, что мы не на земле
 		//currentFrame += 0.005*time;
 		//if (currentFrame > 3) currentFrame -= 3;
 		//p.sprite.setTextureRect(IntRect(96 * int(currentFrame), 307, 96, 96));
@@ -222,7 +252,6 @@ void Player::control(const float time)
 	if (Keyboard::isKeyPressed(Keyboard::Down)) {
 		m_state = down;
 		m_speed = 0.1f;
-		moveCamera(m_x, m_y);
 		//currentFrame += 0.005*time;
 		//if (currentFrame > 3) currentFrame -= 3;
 		//p.sprite.setTextureRect(IntRect(96 * int(currentFrame), 0, 96, 96));
@@ -259,9 +288,10 @@ void Player::update(const float time)
 	m_sprite.setPosition(m_x + m_width / 2, m_y + m_height / 2); //задаем позицию спрайта в место его центра
 	if (m_health <= 0)
 		m_life = false;
-	m_dy = m_dy + 0.0005f * time;//делаем притяжение к земле
-	if (!m_onGround)	// если мы в прижке, камера следит за персонажем
-		moveCamera(m_x, m_y);
+	m_dy = m_dy + 0.0005f * time;		// Делаем притяжение к земле
+	if ((m_dy > 0.1) || (m_dy < -0.1))	// Для того чтобы учитывать падение с краев или взлет/прыжок
+		m_onGround = false;
+	moveCamera(m_x, m_y);
 }
 
 void Player::checkCollisionWithMap(float Dx, float Dy)
