@@ -32,7 +32,7 @@ int main()
 
 	///////// Для текста
 	Font font;
-	font.loadFromFile("resources/bin/CyrilicOld.TTF");
+	font.loadFromFile("resources/CyrilicOld.TTF");
 	// Score
 	Text score_text("", font, 24);
 	score_text.setFillColor(Color::Cyan);	// Цвет текста
