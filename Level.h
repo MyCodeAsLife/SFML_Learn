@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Header.h"
+#include <SFML/Graphics.hpp>
+#include "TinyXML/tinyxml.h"
+#include <iostream>
 
 struct Object
 {
