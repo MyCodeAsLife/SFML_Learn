@@ -6,8 +6,8 @@ sf::View camera;	// Создаем объект камеры
 
 void moveCamera(const float x, const float y)
 {
-	float temp_x(x + 20);
-	float temp_y(y + 50);
+	float temp_x(x);
+	float temp_y(y);
 	if (temp_x < (960 / 2))	// 960 - ширина окна
 		temp_x = (960 / 2);	
 	else if (temp_x > ((32 * 40) - (960 / 2)))	// 40 - ширина карты(в тайлах), 32 - ширина тайла

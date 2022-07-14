@@ -10,6 +10,7 @@ int&& getCurrentMission(int x)
 		return 2;
 	if (x > 2200)
 		return 3;
+	return 0;
 }
 
 std::string getTextMission(int currentMission)
