@@ -12,70 +12,93 @@ public:
 	int m_score = 0;
 
 public:
-	Player(const std::string& name, const Image& image, int x, int y, float width, float height, int health);
+	Player(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health);
 	void update(float time) override;
 	void collision(int dir) override;
 	void control(float time);
 
 };
 
-Player::Player(const std::string& name, const Image& image, int x, int y, float width, float height, int health = 100) :
+Player::Player(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health = 100) :
 	Entity(name, image, x, y, width, height, health), m_score(0)
 {
-	m_sprite.setTextureRect(IntRect(0, 135, static_cast<int>(m_width), static_cast<int>(m_height)));
+	m_obj = lvl.GetAllObjects();
+	m_sprite.setTextureRect(IntRect(5, 18, width, height));
 }
 
 inline void Player::update(float time)
 {
 	control(time);
 
-	this->Entity::update(time);
+	switch (m_state)
+	{
+	case State::right:
+		m_dx = m_speed;
+		if (m_flip)
+		{
+			m_flip = false;
+			m_sprite.scale(-1, 1);
+		}
+		break;
+	case State::left:
+		m_dx = -m_speed;
+		if (!m_flip)
+		{
+			m_sprite.scale(-1, 1);
+			m_flip = true;
+		}
+		break;
+	case State::up:
+		break;
+	case State::down:
+		break;
+	case State::jump:
+		break;
+	case State::stay:
+		m_dx = 0;
+		break;
+	}
+
+	m_x += m_dx * time;
+	collision(0);
+
+	m_dy += 0.001f * time;
+	m_y += m_dy * time;
+	collision(1);
+
+	m_speed = 0;
+	m_sprite.setPosition(m_x + m_sprite.getTextureRect().width/2, m_y + m_sprite.getTextureRect().height/2);
 }
 
 inline void Player::collision(int dir)
 {
-	for (int i(static_cast<int>((m_y - m_height / 2) / SPRITE_HEIGHT)); i < (m_y + m_height / 2) / SPRITE_HEIGHT; ++i)
-		for (int j(static_cast<int>((m_x - m_width / 2) / SPRITE_WIDTH)); j < (m_x + m_width / 2) / SPRITE_WIDTH; ++j)
+	for (int i(0); i < m_obj.size(); ++i)
+		if (getRect().intersects(m_obj[i].rect))
 		{
-			if (TileMap[i][j] == '0')
+			if (m_obj[i].name == "solid")
 			{
 				if (m_dy > 0 && dir)	// Под ногами
 				{
-					m_y = i * SPRITE_HEIGHT - m_height/2;
+					m_y = static_cast<float>(m_obj[i].rect.top - m_sprite.getTextureRect().height/* / 2*/);
 					m_dy = 0;
 					m_state = State::stay;
 					m_onGround = true;
 				}
-				if (m_dy < 0 && dir)	// Над головой
+				else if (m_dy < 0 && dir)	// Над головой
 				{
-					m_y = i * SPRITE_HEIGHT + SPRITE_HEIGHT + (m_height / 2);
+					m_y = static_cast<float>(m_obj[i].rect.top + m_obj[i].rect.height /*+ (m_sprite.getTextureRect().height / 2)*/);
 					m_dy = 0;
 				}
 				if (m_dx > 0 && !dir)
 				{
-					m_x = j * SPRITE_WIDTH - (m_width / 2);
+					m_x = static_cast<float>(m_obj[i].rect.left - (m_sprite.getTextureRect().width/* / 2*/));
 					m_dx = 0;
 				}
-				if (m_dx < 0 && !dir)
+				else if (m_dx < 0 && !dir)
 				{
-					m_x = j * SPRITE_WIDTH + SPRITE_WIDTH + (m_width / 2);
+					m_x = static_cast<float>(m_obj[i].rect.left + m_obj[i].rect.width /*+ (m_sprite.getTextureRect().width / 2)*/);
 					m_dx = 0;
 				}
-			}
-			if (TileMap[i][j] == 's')
-			{
-				TileMap[i][j] = ' ';
-				++m_score;
-			}
-			if (TileMap[i][j] == 'h')
-			{
-				TileMap[i][j] = ' ';
-				m_health += 20;
-			}
-			if (TileMap[i][j] == 'f')
-			{
-				TileMap[i][j] = ' ';
-				m_health -= 40;
 			}
 		}
 }
@@ -87,19 +110,19 @@ inline void Player::control(float time)
 	{
 		m_state = State::right;
 		m_speed = 0.2f;
-		m_currentFrame += 0.008f * time;
-		if (m_currentFrame > 3)
+		m_currentFrame += 0.013f * time;
+		if (m_currentFrame > 11)
 			m_currentFrame = 0;
-		m_sprite.setTextureRect(IntRect(96 * static_cast<int>(m_currentFrame), 232, 96, 56));
+		m_sprite.setTextureRect(IntRect(45 * static_cast<int>(m_currentFrame) + 295, 102, 43, 30));
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Left))
 	{
 		m_state = State::left;
 		m_speed = 0.2f;
-		m_currentFrame += 0.008f * time;
-		if (m_currentFrame > 3)
+		m_currentFrame += 0.013f * time;
+		if (m_currentFrame > 11)
 			m_currentFrame = 0;
-		m_sprite.setTextureRect(IntRect(96 * static_cast<int>(m_currentFrame), 135, 96, 56));
+		m_sprite.setTextureRect(IntRect(45 * static_cast<int>(m_currentFrame) + 295, 102, 43, 30));
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Up) && m_onGround)
 	{

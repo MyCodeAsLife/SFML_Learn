@@ -1,15 +1,13 @@
 #include "Level.h"
 #include "View.h"
-#include "Map.h"
 #include "Player.h"
 #include "Mission.h"
+#include "Enemy.h"
 #include <list>
 
 const unsigned c_wWidth(960);		// Ширина окна (640)
 const unsigned c_wHeight(480);		// Высота окна (480)
 const unsigned c_wFPS(240);			// Отрисовка кадров в секунду (FPS)
-const unsigned SPRITE_WIDTH(32);
-const unsigned SPRITE_HEIGHT(32);
 
 using namespace sf;
 ////////////////////////////////////////////START MAIN///////////////////////////////////////////////////////////////
@@ -23,13 +21,8 @@ int main()
 	camera.reset(FloatRect(0, 0, c_wWidth, c_wHeight));
 
 	//// Для карты
-	Image map_image;
-	map_image.loadFromFile("resources/images/map.png");
-	Texture map_texture;
-	map_texture.loadFromImage(map_image);
-	Sprite map_sprite;
-	map_sprite.setTexture(map_texture);
-	randomMapGenerator();
+	Level lvl;
+	lvl.LoadFromFile("resources/map/lvl-1.tmx");
 
 	//// Для плашки в верху экрана
 	RectangleShape board_shape(Vector2f(c_wWidth, c_wHeight / 15));	// Прозрачная плашка
@@ -65,10 +58,20 @@ int main()
 	mission_text.setFillColor(Color::Black);
 	mission_text.setStyle(Text::Bold);
 
+	//// Для персонажей
+	Object place_player = lvl.GetObject("player");
+	Object place_enemy = lvl.GetObject("easyEnemy");
+
 	//// Персонаж
 	Image hero_image;
-	hero_image.loadFromFile("resources/images/hero.png");
-	Player p1("Hero",hero_image, 250, 250, 96.f, 56.f);
+	hero_image.loadFromFile("resources/images/MilesTailsPrower.gif");
+	Player p1("Hero",hero_image, lvl, place_player.rect.left, place_player.rect.top, 43.f, 30.f);
+
+	//// Моб
+	Image enemy_image;
+	enemy_image.loadFromFile("resources/images/shamaich.png");
+	enemy_image.createMaskFromColor(Color(255, 0, 0));
+	Enemy en1("easyEnemy", enemy_image, lvl, place_enemy.rect.left, place_enemy.rect.top, 200.f, 97.f);
 
 	//// Для анимации
 	Clock clock;
@@ -103,23 +106,11 @@ int main()
 		window.clear(Color(70, 70, 70, 0));
 
 		// Отрисовка карты
-		for (int i(0); i < HEIGHT_MAP; ++i)
-			for (int j(0); j < WIDTH_MAP; ++j)
-			{
-				if (TileMap[i][j] == ' ')
-					map_sprite.setTextureRect(IntRect(0, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-				if (TileMap[i][j] == 's')
-					map_sprite.setTextureRect(IntRect(32, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-				if (TileMap[i][j] == '0')
-					map_sprite.setTextureRect(IntRect(64, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-				if (TileMap[i][j] == 'f')
-					map_sprite.setTextureRect(IntRect(96, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
-				if (TileMap[i][j] == 'h')
-					map_sprite.setTextureRect(IntRect(128, 0, SPRITE_WIDTH, SPRITE_HEIGHT));
+		lvl.Draw(window);
 
-				map_sprite.setPosition(static_cast<float>(j * SPRITE_WIDTH), static_cast<float>(i * SPRITE_HEIGHT));
-				window.draw(map_sprite);
-			}
+		// Отрисовка врага
+		en1.update(time);
+		window.draw(en1.m_sprite);
 
 		// Отрисовка персонажа
 		p1.update(time);
@@ -139,7 +130,8 @@ int main()
 		window.draw(time_text);
 
 		health_text.setString("Healt " + std::to_string(p1.m_health));
-		health_text.setPosition(p1.getX() - (p1.m_width / 2.f) + 2, p1.getY() - (p1.m_height));
+		health_text.setPosition(p1.m_sprite.getPosition().x - p1.m_sprite.getTextureRect().width,
+			(p1.m_sprite.getPosition().y - p1.m_sprite.getTextureRect().height) - 7);
 		window.draw(health_text);
 
 		// Отрисовка окна миссии
@@ -153,7 +145,7 @@ int main()
 		}
 
 		// Камера
-		moveCamera(p1.m_x, p1.m_y);
+		moveCamera(p1.m_sprite.getPosition().x, p1.m_sprite.getPosition().y);
 		window.setView(camera);
 
 		// Отрисовка окна
