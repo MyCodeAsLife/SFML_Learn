@@ -1,3 +1,6 @@
+#include <SFML/Graphics.hpp>
+using namespace sf;
+
 #include "Level.h"
 #include "View.h"
 #include "Player.h"
@@ -9,7 +12,6 @@ const unsigned c_wWidth(960);		// Ширина окна (640)
 const unsigned c_wHeight(480);		// Высота окна (480)
 const unsigned c_wFPS(240);			// Отрисовка кадров в секунду (FPS)
 
-using namespace sf;
 ////////////////////////////////////////////START MAIN///////////////////////////////////////////////////////////////
 int main()
 {
@@ -71,7 +73,13 @@ int main()
 	Image enemy_image;
 	enemy_image.loadFromFile("resources/images/shamaich.png");
 	enemy_image.createMaskFromColor(Color(255, 0, 0));
-	Enemy en1("easyEnemy", enemy_image, lvl, place_enemy.rect.left, place_enemy.rect.top, 200.f, 97.f);
+	std::list<Entity*> entities;				// Динамический список врагов
+	std::list<Entity*>::iterator it_entities;	// Для прохода по элементам списка
+	std::list<Entity*>::iterator it_entities2;
+	std::vector<Object> place_enemies = lvl.GetObjects("easyEnemy");	// Координаты врагов на карте
+	for (int i(0); i < place_enemies.size(); ++i)
+		entities.push_back(new Enemy("easyEnemy", enemy_image, lvl, place_enemies[i].rect.left,
+			place_enemies[i].rect.top, 200.f, 97.f));
 
 	//// Для анимации
 	Clock clock;
@@ -94,12 +102,13 @@ int main()
 
 			//// Вкл-Выкл отображения окна мисии
 			if (event.type == Event::KeyReleased)
+			{
 				if (event.key.code == Keyboard::Tab)
 					if (showMissionText)
 						showMissionText = false;
 					else
 						showMissionText = true;
-
+			}
 		}
 
 		// Очистка экрана и установка цвета фона
@@ -109,12 +118,102 @@ int main()
 		lvl.Draw(window);
 
 		// Отрисовка врага
-		en1.update(time);
-		window.draw(en1.m_sprite);
+		for (it_entities = entities.begin(); it_entities != entities.end();)
+		{
+			(*it_entities)->update(time);
+			if (!(*it_entities)->m_life)
+			{
+				delete* it_entities;
+				entities.erase(it_entities++);
+			}
+			else
+			{
+				window.draw((*it_entities)->m_sprite);
+				++it_entities;
+			}
+		}
 
 		// Отрисовка персонажа
 		p1.update(time);
 		window.draw(p1.m_sprite);
+
+		// Обработка столкновения персонажа с врагом
+		for (it_entities = entities.begin(); it_entities != entities.end(); ++it_entities)
+		{
+			if (p1.getRect().intersects((*it_entities)->getRect()))
+			{
+				if ((*it_entities)->m_name == "easyEnemy")
+				{
+					if (p1.m_dy > 0 && !(p1.m_onGround))
+					{
+						p1.m_dy = -0.3f;
+						(*it_entities)->m_health = 0;
+						(*it_entities)->m_life = false;
+					}
+					else
+						p1.m_health -= 5;
+					if ((*it_entities)->m_dx > 0) // Если враг идет вправо
+					{
+						if (p1.m_dx > 0 && p1.m_onGround)
+						{
+							p1.m_speed = 0.15f;
+							p1.m_dy = -0.6f;
+							p1.m_onGround = false;
+							p1.m_state = Player::State::right;
+							p1.m_onControl = false;
+						}
+						if ((p1.m_dx < 0 && p1.m_onGround) || (p1.m_dx == 0 && p1.m_onGround))
+						{
+							p1.m_speed = 0.15f;
+							p1.m_dy = -0.6f;
+							p1.m_onGround = false;
+							p1.m_state = Player::State::right;
+							p1.m_onControl = false;
+
+							(*it_entities)->m_rect.left = static_cast<float>(p1.m_rect.left -
+								(*it_entities)->m_rect.width);
+							(*it_entities)->m_dx = -(*it_entities)->m_dx;
+							(*it_entities)->m_sprite.scale(-1, 1);
+						}
+					}
+					else if ((*it_entities)->m_dx < 0)	// Если враг идет влево
+					{
+						if ((p1.m_dx > 0 && p1.m_onGround) || (p1.m_dx == 0 && p1.m_onGround))
+						{
+							p1.m_speed = 0.15f;
+							p1.m_dy = -0.6f;
+							p1.m_onGround = false;
+							p1.m_state = Player::State::left;
+							p1.m_onControl = false;
+
+							(*it_entities)->m_rect.left = static_cast<float>(p1.m_rect.left +
+								p1.m_rect.width);
+							(*it_entities)->m_dx = -(*it_entities)->m_dx;
+							(*it_entities)->m_sprite.scale(-1, 1);
+						}
+						if (p1.m_dx < 0 && p1.m_onGround)
+						{
+							p1.m_speed = 0.15f;
+							p1.m_dy = -0.6f;
+							p1.m_onGround = false;
+							p1.m_state = Player::State::left;
+							p1.m_onControl = false;
+						}
+					}
+				}
+			}
+			for (it_entities2 = entities.begin(); it_entities2 != entities.end(); ++it_entities2)	// Столкновение между протитвниками
+			{
+				if (it_entities != it_entities2)
+				{
+					if ((*it_entities)->m_rect.intersects((*it_entities2)->m_rect))
+					{
+						(*it_entities)->m_dx = -(*it_entities)->m_dx;
+						(*it_entities)->m_sprite.scale(-1, 1);
+					}
+				}
+			}
+		}
 
 		// Отрисовка прозрачной плашки
 		board_shape.setPosition(camera.getCenter().x-(c_wWidth/2), camera.getCenter().y-(c_wHeight/2));
@@ -122,11 +221,13 @@ int main()
 
 		// Отрисовка текста
 		score_text.setString("Score: " + std::to_string(p1.m_score));	// Содержание текста
-		score_text.setPosition(camera.getCenter().x - (c_wWidth / 2.5f), camera.getCenter().y - (c_wHeight / 2));	// Позиция текста
+		score_text.setPosition(camera.getCenter().x - (c_wWidth / 2.5f), camera.getCenter().y
+			- (c_wHeight / 2));	// Позиция текста
 		window.draw(score_text);
 
 		time_text.setString("Time: " + std::to_string(game_time / 1000));
-		time_text.setPosition(camera.getCenter().x + (c_wWidth / 3.f), camera.getCenter().y - (c_wHeight / 2));
+		time_text.setPosition(camera.getCenter().x + (c_wWidth / 3.f), camera.getCenter().y
+			- (c_wHeight / 2));
 		window.draw(time_text);
 
 		health_text.setString("Healt " + std::to_string(p1.m_health));

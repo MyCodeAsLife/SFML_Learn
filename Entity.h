@@ -1,16 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
-using namespace sf;
-
-extern const unsigned SPRITE_HEIGHT;
-extern const unsigned SPRITE_WIDTH;
-
 class Entity
 {
 public:
-	float m_x, m_y;
+	FloatRect m_rect;
 	float m_dx, m_dy;
 	float m_speed;
 	float m_moveTimer;
@@ -37,14 +30,19 @@ public:
 	Entity(const std::string& name, const Image& image, int x, int y, int width, int height, int health);
 	virtual void update(float time) = 0;
 	virtual void collision(int dir) = 0;
-	FloatRect&& getRect() { return FloatRect(m_x, m_y, m_sprite.getTextureRect().width, m_sprite.getTextureRect().height); }
+	FloatRect getRect() { return m_rect; }
 };
 
 Entity::Entity(const std::string& name, const Image& image, int x, int y, int width, int height, int health) :
-	m_image(image), m_name(name), m_x(static_cast<float>(x)), m_y(static_cast<float>(y)), m_flip(false),
-	m_health(health), m_life(true), m_speed(0), m_onGround(false), m_currentFrame(0),
-	m_state(State::stay), m_dx(0), m_dy(0), m_moveTimer(0)
+	m_image(image), m_name(name), m_flip(false), m_health(health), m_life(true),
+	m_speed(0), m_onGround(false), m_currentFrame(0), m_state(State::stay), m_dx(0),
+	m_dy(0), m_moveTimer(0)
 {
+	m_rect.left = x;
+	m_rect.top = y;
+	m_rect.width = width;
+	m_rect.height = height;
+
 	if (m_name == "Hero")
 		m_image.createMaskFromColor(Color(41, 33, 59));
 	m_texture.loadFromImage(m_image);

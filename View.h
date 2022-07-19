@@ -1,6 +1,9 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+extern const unsigned  c_wWidth;		// Ширина окна (640)
+extern const unsigned c_wHeight;		// Высота окна (480)
+const unsigned c_mapWidth(50);			// Взял из файла карты
+const unsigned c_mapHeight(27);			// Взял из файла карты
 
 sf::View camera;	// Создаем объект камеры
 
@@ -8,14 +11,16 @@ void moveCamera(const float x, const float y)
 {
 	float temp_x(x);
 	float temp_y(y);
-	//if (temp_x < (960 / 2))	// 960 - ширина окна
-	//	temp_x = (960 / 2);	
-	//else if (temp_x > ((32 * 40) - (960 / 2)))	// 40 - ширина карты(в тайлах), 32 - ширина тайла
-	//	temp_x = ((32 * 40) - (960 / 2));
-	//if (temp_y < (480 / 2))	// 480 - высота окна
-	//	temp_y = (480 / 2);
-	//else if (temp_y > ((32 * 25) - (480 / 2)))	// 25 - высота карты(в тайлах), 32 - высота тайла
-	//	temp_y = ((32 * 25) - (480 / 2));
+
+	if (temp_x < (c_wWidth / 2))	
+		temp_x = (c_wWidth / 2);
+	else if (temp_x > ((32 * c_mapWidth) - (c_wWidth / 2)))	// 32 - ширина тайла
+		temp_x = ((32 * c_mapWidth) - (c_wWidth / 2));
+
+	if (temp_y < (c_wHeight / 2))
+		temp_y = (c_wHeight / 2);
+	else if (temp_y > ((32 * c_mapHeight) - (c_wHeight / 2)))	// 32 - высота тайла
+		temp_y = ((32 * c_mapHeight) - (c_wHeight / 2));
 	camera.setCenter(temp_x, temp_y);
 }
 
