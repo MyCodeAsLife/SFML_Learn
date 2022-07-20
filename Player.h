@@ -6,20 +6,22 @@ class Player : public Entity
 public:
 	int m_score = 0;
 	bool m_onControl;
+	int m_health;
+	bool m_isShoot;
 
 public:
-	Player(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health);
+	Player(const std::string& name, const Image& image, Level& lvl, float x, float y, float width, float height, int health);
 	void update(float time) override;
 	void collision(int dir) override;
 	void control(float time);
 
 };
 
-Player::Player(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health = 100) :
-	Entity(name, image, x, y, width, height, health), m_score(0), m_onControl(true)
+Player::Player(const std::string& name, const Image& image, Level& lvl, float x, float y, float width, float height, int health = 100) :
+	Entity(name, image, x, y, width, height), m_score(0), m_onControl(true), m_health(health), m_isShoot(true)
 {
 	m_obj = lvl.GetAllObjects();
-	m_sprite.setTextureRect(IntRect(5, 18, m_rect.width, m_rect.height));
+	m_sprite.setTextureRect(IntRect(5, 18, static_cast<int>(m_rect.width), static_cast<int>(m_rect.height)));
 	m_sprite.setPosition(m_rect.left, m_rect.top);
 }
 
@@ -75,9 +77,20 @@ inline void Player::update(float time)
 
 	if (m_dy > 0)
 		m_onGround = false;
-	if (m_onGround)
+	if (m_onGround)		// Позволяет "планировать", сохранять горизонтальную скорость во время падения
 		m_speed = 0;
-	m_sprite.setPosition(m_rect.left + m_sprite.getTextureRect().width/2, m_rect.top + m_sprite.getTextureRect().height/2);
+
+	if (!m_isShoot)	// Задержка при стрельбе
+	{
+		m_moveTimer += time;
+		if (m_moveTimer > 500)
+		{
+			m_moveTimer = 0;
+			m_isShoot = true;
+		}
+	}
+
+	m_sprite.setPosition(m_rect.left + m_rect.width/2, m_rect.top + m_rect.height/2);
 }
 
 inline void Player::collision(int dir)
@@ -89,24 +102,24 @@ inline void Player::collision(int dir)
 			{
 				if (m_dy > 0 && dir)	// Под ногами
 				{
-					m_rect.top = static_cast<float>(m_obj[i].rect.top - m_sprite.getTextureRect().height/* / 2*/);
+					m_rect.top = m_obj[i].rect.top - m_rect.height;
 					m_dy = 0;
-					m_state = State::stay;
+					//m_state = State::stay;
 					m_onGround = true;
 				}
 				else if (m_dy < 0 && dir)	// Над головой
 				{
-					m_rect.top = static_cast<float>(m_obj[i].rect.top + m_obj[i].rect.height /*+ (m_sprite.getTextureRect().height / 2)*/);
+					m_rect.top = m_obj[i].rect.top + m_obj[i].rect.height;
 					m_dy = 0;
 				}
 				if (m_dx > 0 && !dir)
 				{
-					m_rect.left = static_cast<float>(m_obj[i].rect.left - (m_sprite.getTextureRect().width/* / 2*/));
+					m_rect.left = m_obj[i].rect.left - m_rect.width;
 					m_dx = 0;
 				}
 				else if (m_dx < 0 && !dir)
 				{
-					m_rect.left = static_cast<float>(m_obj[i].rect.left + m_obj[i].rect.width /*+ (m_sprite.getTextureRect().width / 2)*/);
+					m_rect.left = m_obj[i].rect.left + m_obj[i].rect.width;
 					m_dx = 0;
 				}
 			}
@@ -139,6 +152,7 @@ inline void Player::control(float time)
 		m_state = State::jump;
 		m_dy = -0.7f;
 		m_onGround = false;
+		m_dx = 0;				// Для обнуления боковой скорости, при зажатом прижке
 	}
 	if (Keyboard::isKeyPressed(Keyboard::Down))
 	{

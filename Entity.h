@@ -7,7 +7,6 @@ public:
 	float m_dx, m_dy;
 	float m_speed;
 	float m_moveTimer;
-	int m_health;
 	bool m_life;
 	bool m_flip;
 	std::string m_name;
@@ -23,20 +22,20 @@ public:
 		down,
 		jump,
 		stay,
+		right_top,
 	} m_state;
 	std::vector<Object> m_obj;
 
 public:
-	Entity(const std::string& name, const Image& image, int x, int y, int width, int height, int health);
+	Entity(const std::string& name, const Image& image, float x, float y, float width, float height);
 	virtual void update(float time) = 0;
 	virtual void collision(int dir) = 0;
 	FloatRect getRect() { return m_rect; }
 };
 
-Entity::Entity(const std::string& name, const Image& image, int x, int y, int width, int height, int health) :
-	m_image(image), m_name(name), m_flip(false), m_health(health), m_life(true),
-	m_speed(0), m_onGround(false), m_currentFrame(0), m_state(State::stay), m_dx(0),
-	m_dy(0), m_moveTimer(0)
+Entity::Entity(const std::string& name, const Image& image, float x, float y, float width, float height) :
+	m_image(image), m_name(name), m_flip(false), m_life(true),m_speed(0), m_onGround(false),
+	m_currentFrame(0), m_state(State::stay), m_dx(0), m_dy(0), m_moveTimer(0)
 {
 	m_rect.left = x;
 	m_rect.top = y;

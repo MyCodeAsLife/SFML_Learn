@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="27" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#4d538c" nextlayerid="4" nextobjectid="63">
- <tileset firstgid="1" name="Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet" tilewidth="32" tileheight="32" tilecount="360" columns="60">
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="50" height="27" tilewidth="32" tileheight="32" infinite="0" backgroundcolor="#4d538c" nextlayerid="4" nextobjectid="70">
+ <tileset firstgid="1" name="Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet" tilewidth="32" tileheight="32" tilecount="0" columns="60">
   <image source="resources/images/Tiny_Chao_Garden_SonicAdv_3_Tile_Sheet.png" width="1920" height="192"/>
  </tileset>
  <layer id="1" name="Слой тайлов 2" width="50" height="27">
@@ -2723,5 +2723,9 @@
   <object id="60" name="solid" x="385.179" y="608.406" width="991" height="31.4225"/>
   <object id="61" name="solid" x="1440" y="704.061" width="32" height="31.7875"/>
   <object id="62" name="solid" x="287.875" y="704.083" width="32" height="31.833"/>
+  <object id="63" name="movingPlatform" x="416.5" y="512.5" width="95" height="22"/>
+  <object id="67" name="movingPlatform" x="993.5" y="514" width="95" height="22"/>
+  <object id="68" name="movingPlatform" x="449.5" y="705" width="95" height="22"/>
+  <object id="69" name="movingPlatform" x="929.5" y="705" width="95" height="22"/>
  </objectgroup>
 </map>

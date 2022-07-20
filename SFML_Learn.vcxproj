@@ -487,6 +487,7 @@ copy /Y "$(SolutionDir)extlibs\bin\$(PlatformTarget)\openal32.dll"  "$(TargetDir
     <Library Include="extlibs\lib\x86\vorbisfile.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bullet.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="extlibs\include\SFML\Audio.hpp" />
@@ -587,8 +588,11 @@ copy /Y "$(SolutionDir)extlibs\bin\$(PlatformTarget)\openal32.dll"  "$(TargetDir
     <ClInclude Include="extlibs\include\SFML\Window\Window.hpp" />
     <ClInclude Include="extlibs\include\SFML\Window\WindowHandle.hpp" />
     <ClInclude Include="extlibs\include\SFML\Window\WindowStyle.hpp" />
+    <ClInclude Include="Game.h" />
     <ClInclude Include="Level.h" />
+    <ClInclude Include="LifeBar.h" />
     <ClInclude Include="Mission.h" />
+    <ClInclude Include="MovingPlatform.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="TinyXML\tinystr.h" />
     <ClInclude Include="TinyXML\tinyxml.h" />

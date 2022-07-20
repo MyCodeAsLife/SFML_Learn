@@ -12,15 +12,15 @@ void moveCamera(const float x, const float y)
 	float temp_x(x);
 	float temp_y(y);
 
-	if (temp_x < (c_wWidth / 2))	
-		temp_x = (c_wWidth / 2);
-	else if (temp_x > ((32 * c_mapWidth) - (c_wWidth / 2)))	// 32 - ширина тайла
-		temp_x = ((32 * c_mapWidth) - (c_wWidth / 2));
+	if (temp_x < static_cast<float>(c_wWidth / 2))	
+		temp_x = static_cast<float>(c_wWidth / 2);
+	else if (temp_x > static_cast<float>((32 * c_mapWidth) - (c_wWidth / 2)))	// 32 - ширина тайла
+		temp_x = static_cast<float>((32 * c_mapWidth) - (c_wWidth / 2));
 
-	if (temp_y < (c_wHeight / 2))
-		temp_y = (c_wHeight / 2);
-	else if (temp_y > ((32 * c_mapHeight) - (c_wHeight / 2)))	// 32 - высота тайла
-		temp_y = ((32 * c_mapHeight) - (c_wHeight / 2));
+	if (temp_y < static_cast<float>(c_wHeight / 2))
+		temp_y = static_cast<float>(c_wHeight / 2);
+	else if (temp_y > static_cast<float>((32 * c_mapHeight) - (c_wHeight / 2)))	// 32 - высота тайла
+		temp_y = static_cast<float>((32 * c_mapHeight) - (c_wHeight / 2));
 	camera.setCenter(temp_x, temp_y);
 }
 

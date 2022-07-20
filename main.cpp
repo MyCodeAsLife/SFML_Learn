@@ -1,12 +1,18 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 using namespace sf;
 
+#include <list>
 #include "Level.h"
 #include "View.h"
 #include "Player.h"
 #include "Mission.h"
 #include "Enemy.h"
-#include <list>
+#include "MovingPlatform.h"
+#include "Bullet.h"
+#include "LifeBar.h"
+#include "Game.h"
+
 
 const unsigned c_wWidth(960);		// Ширина окна (640)
 const unsigned c_wHeight(480);		// Высота окна (480)
@@ -29,6 +35,12 @@ int main()
 	//// Для плашки в верху экрана
 	RectangleShape board_shape(Vector2f(c_wWidth, c_wHeight / 15));	// Прозрачная плашка
 	board_shape.setFillColor(Color(100, 100, 100, 200));
+
+	//// Для звука
+	SoundBuffer shoot_soundBuffer;
+	Sound shoot_sound;
+	shoot_soundBuffer.loadFromFile("resources/sound/shoot.ogg");
+	shoot_sound.setBuffer(shoot_soundBuffer);
 
 	///////// Для текста
 	Font font;
@@ -60,6 +72,9 @@ int main()
 	mission_text.setFillColor(Color::Black);
 	mission_text.setStyle(Text::Bold);
 
+	//// Для хелсбара
+	LifeBar life_bar;
+
 	//// Для персонажей
 	Object place_player = lvl.GetObject("player");
 	Object place_enemy = lvl.GetObject("easyEnemy");
@@ -80,6 +95,21 @@ int main()
 	for (int i(0); i < place_enemies.size(); ++i)
 		entities.push_back(new Enemy("easyEnemy", enemy_image, lvl, place_enemies[i].rect.left,
 			place_enemies[i].rect.top, 200.f, 97.f));
+
+	//// Для движущейся платформы
+	Image platform_image;
+	platform_image.loadFromFile("resources/images/movingPlatform.png");
+	std::vector<Object> place_movingPlatform = lvl.GetObjects("movingPlatform");
+	for (int i(0); i < place_movingPlatform.size(); ++i)
+	{
+		entities.push_back(new MovingPlatform("movingPlatform", platform_image,
+			place_movingPlatform[i].rect.left,place_movingPlatform[i].rect.top, 95.f, 22.f));
+	}
+
+	//// Для пуль
+	Image bullet_image;
+	bullet_image.loadFromFile("resources/images/bullet.png");
+	bullet_image.createMaskFromColor(Color(0, 0, 0));
 
 	//// Для анимации
 	Clock clock;
@@ -111,13 +141,24 @@ int main()
 			}
 		}
 
+		if (Keyboard::isKeyPressed(Keyboard::Space))
+		{
+			if (p1.m_isShoot)
+			{
+				p1.m_isShoot = false;
+				entities.push_back(new Bullet("bullet", bullet_image, lvl, p1.m_rect.left,
+					p1.m_rect.top, 16.f, 16.f, static_cast<int>(p1.m_state)));
+				shoot_sound.play();
+			}
+		}
+
 		// Очистка экрана и установка цвета фона
 		window.clear(Color(70, 70, 70, 0));
 
 		// Отрисовка карты
 		lvl.Draw(window);
 
-		// Отрисовка врага
+		// Отрисовка динамических объектов (враги, платформы и т.д.)
 		for (it_entities = entities.begin(); it_entities != entities.end();)
 		{
 			(*it_entities)->update(time);
@@ -136,18 +177,31 @@ int main()
 		// Отрисовка персонажа
 		p1.update(time);
 		window.draw(p1.m_sprite);
+		// Отрисовка heatlh-bar
+		life_bar.update(p1.m_health);
+		life_bar.draw(window);
 
-		// Обработка столкновения персонажа с врагом
 		for (it_entities = entities.begin(); it_entities != entities.end(); ++it_entities)
 		{
+			// Обработка столкновения персонажа с динамическими объектами
 			if (p1.getRect().intersects((*it_entities)->getRect()))
 			{
-				if ((*it_entities)->m_name == "easyEnemy")
+				if ((*it_entities)->m_name == "movingPlatform")	// Обработка столкновения персонажа с платформами
+				{
+					if (p1.m_dy > 0 && !(p1.m_onGround))	// Под ногами
+					{
+						p1.m_rect.top = (*it_entities)->m_rect.top - p1.m_rect.height;
+						p1.m_dy = 0;
+						p1.m_rect.left += (*it_entities)->m_dx * time;	// Прилипание к платформе
+						p1.m_state = Player::State::stay;
+						p1.m_onGround = true;
+					}
+				}
+				if ((*it_entities)->m_name == "easyEnemy")	// Обработка столкновения персонажа с врагом
 				{
 					if (p1.m_dy > 0 && !(p1.m_onGround))
 					{
 						p1.m_dy = -0.3f;
-						(*it_entities)->m_health = 0;
 						(*it_entities)->m_life = false;
 					}
 					else
@@ -159,7 +213,7 @@ int main()
 							p1.m_speed = 0.15f;
 							p1.m_dy = -0.6f;
 							p1.m_onGround = false;
-							p1.m_state = Player::State::right;
+							p1.m_state = Player::State::left;
 							p1.m_onControl = false;
 						}
 						if ((p1.m_dx < 0 && p1.m_onGround) || (p1.m_dx == 0 && p1.m_onGround))
@@ -170,8 +224,8 @@ int main()
 							p1.m_state = Player::State::right;
 							p1.m_onControl = false;
 
-							(*it_entities)->m_rect.left = static_cast<float>(p1.m_rect.left -
-								(*it_entities)->m_rect.width);
+							(*it_entities)->m_rect.left = p1.m_rect.left -
+								(*it_entities)->m_rect.width;
 							(*it_entities)->m_dx = -(*it_entities)->m_dx;
 							(*it_entities)->m_sprite.scale(-1, 1);
 						}
@@ -186,8 +240,8 @@ int main()
 							p1.m_state = Player::State::left;
 							p1.m_onControl = false;
 
-							(*it_entities)->m_rect.left = static_cast<float>(p1.m_rect.left +
-								p1.m_rect.width);
+							(*it_entities)->m_rect.left = p1.m_rect.left +
+								p1.m_rect.width;
 							(*it_entities)->m_dx = -(*it_entities)->m_dx;
 							(*it_entities)->m_sprite.scale(-1, 1);
 						}
@@ -196,7 +250,7 @@ int main()
 							p1.m_speed = 0.15f;
 							p1.m_dy = -0.6f;
 							p1.m_onGround = false;
-							p1.m_state = Player::State::left;
+							p1.m_state = Player::State::right;
 							p1.m_onControl = false;
 						}
 					}

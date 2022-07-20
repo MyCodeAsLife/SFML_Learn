@@ -1,6 +1,6 @@
 #pragma once
 
-int&& getCurrentMission(int x)
+int getCurrentMission(int x)
 {
 	if ((x > 0) && (x < 400))
 		return 0;

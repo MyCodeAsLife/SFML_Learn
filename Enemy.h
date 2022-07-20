@@ -5,16 +5,19 @@
 class Enemy : public Entity
 {
 public:
-	Enemy(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health);
+	int m_health;
+
+public:
+	Enemy(const std::string& name, const Image& image, Level& lvl, float x, float y, float width, float height, int health);
 	void update(float time) override;
 	void collision(int dir) override;
 };
 
-Enemy::Enemy(const std::string& name, const Image& image, Level& lvl, int x, int y, int width, int height, int health = 100) :
-	Entity(name, image, x, y, width, height, health)
+Enemy::Enemy(const std::string& name, const Image& image, Level& lvl, float x, float y, float width, float height, int health = 100) :
+	Entity(name, image, x, y, width, height), m_health(health)
 {
 	m_obj = lvl.GetObjects("solid");
-	m_sprite.setTextureRect(IntRect(0, 0, width, height));
+	m_sprite.setTextureRect(IntRect(0, 0, static_cast<int>(width), static_cast<int>(height)));
 	m_dx = 0.1f;
 	m_sprite.setPosition(m_rect.left, m_rect.top);
 }
@@ -39,25 +42,25 @@ inline void Enemy::collision(int dir)
 		{
 				if (m_dy > 0 && dir)	// Под ногами
 				{
-					m_rect.top = static_cast<float>(m_obj[i].rect.top - m_sprite.getTextureRect().height);
+					m_rect.top = m_obj[i].rect.top - m_sprite.getTextureRect().height;
 					m_dy = 0;
 					m_state = State::stay;
 					m_onGround = true;
 				}
 				else if (m_dy < 0 && dir)	// Над головой
 				{
-					m_rect.top = static_cast<float>(m_obj[i].rect.top + m_obj[i].rect.height);
+					m_rect.top = m_obj[i].rect.top + m_obj[i].rect.height;
 					m_dy = 0;
 				}
 				if (m_dx > 0 && !dir)
 				{
-					m_rect.left = static_cast<float>(m_obj[i].rect.left - (m_sprite.getTextureRect().width));
+					m_rect.left = m_obj[i].rect.left - (m_sprite.getTextureRect().width);
 					m_dx = -m_dx;
 					m_sprite.scale(-1, 1);
 				}
 				else if (m_dx < 0 && !dir)
 				{
-					m_rect.left = static_cast<float>(m_obj[i].rect.left + m_obj[i].rect.width);
+					m_rect.left = m_obj[i].rect.left + m_obj[i].rect.width;
 					m_dx = -m_dx;
 					m_sprite.scale(-1, 1);
 				}
