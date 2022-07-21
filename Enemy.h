@@ -32,17 +32,17 @@ inline void Enemy::update(float time)
 	collision(1);
 
 	m_speed = 0;
-	m_sprite.setPosition(m_rect.left + m_sprite.getTextureRect().width / 2, m_rect.top + m_sprite.getTextureRect().height / 2);
+	m_sprite.setPosition(m_rect.left + m_rect.width / 2, m_rect.top + m_rect.height / 2);
 }
 
 inline void Enemy::collision(int dir)
 {
 	for (int i(0); i < m_obj.size(); ++i)
-		if (getRect().intersects(m_obj[i].rect))
+		if (m_rect.intersects(m_obj[i].rect))
 		{
 				if (m_dy > 0 && dir)	// Под ногами
 				{
-					m_rect.top = m_obj[i].rect.top - m_sprite.getTextureRect().height;
+					m_rect.top = m_obj[i].rect.top - m_rect.height;
 					m_dy = 0;
 					m_state = State::stay;
 					m_onGround = true;
@@ -54,7 +54,7 @@ inline void Enemy::collision(int dir)
 				}
 				if (m_dx > 0 && !dir)
 				{
-					m_rect.left = m_obj[i].rect.left - (m_sprite.getTextureRect().width);
+					m_rect.left = m_obj[i].rect.left - m_rect.width;
 					m_dx = -m_dx;
 					m_sprite.scale(-1, 1);
 				}

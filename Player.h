@@ -60,6 +60,8 @@ inline void Player::update(float time)
 	case State::up:
 		break;
 	case State::down:
+		if (m_onGround)			// Чтобы не терял инерции в полете при нажатии вниз
+			m_dx = m_speed;
 		break;
 	case State::jump:
 		break;
@@ -157,6 +159,6 @@ inline void Player::control(float time)
 	if (Keyboard::isKeyPressed(Keyboard::Down))
 	{
 		m_state = State::down;
-		m_speed = 0.1f;
+		m_speed = 0.f;
 	}
 }
